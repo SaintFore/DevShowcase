@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
 import type { ProjectRead } from "../types/api";
-import { getProjects } from "../types/api";
 
-export default function Projects() {
-  const [projects, setProjects] = useState<ProjectRead[]>([]);
+type Props = {
+  projects: ProjectRead[];
+};
 
-  useEffect(() => {
-    getProjects().then((res) => {
-      setProjects(res.data);
-    });
-  }, []);
-
+export default function Projects({ projects }: Props) {
   return (
     <>
       <ul>
