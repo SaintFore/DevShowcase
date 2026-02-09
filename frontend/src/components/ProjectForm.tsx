@@ -1,7 +1,5 @@
-import type { ProjectCreate } from "../types/api";
-import { createProject } from "../types/api";
-
 import { useState } from "react";
+import { createProject } from "../api/projects";
 
 type Props = {
   onSuccess: () => void;
@@ -14,14 +12,13 @@ export default function ProjectForm({ onSuccess }: Props) {
   const [githubUrl, setGithubUrl] = useState("");
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const payload: ProjectCreate = {
-      title,
-      description,
-      tech_stack: techStack.split(",").map((tech) => tech.trim()),
-      github_url: githubUrl || null,
-    };
     try {
-      await createProject(payload);
+      await createProject({
+        title,
+        description,
+        tech_stack: techStack.split(",").map((tech) => tech.trim()),
+        github_url: githubUrl || null,
+      });
       onSuccess();
       setTitle("");
       setDescription("");

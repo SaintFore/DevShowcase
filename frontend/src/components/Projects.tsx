@@ -1,4 +1,4 @@
-import type { ProjectRead } from "../types/api";
+import type { ProjectRead } from "../api/projects";
 
 type Props = {
   projects: ProjectRead[];
