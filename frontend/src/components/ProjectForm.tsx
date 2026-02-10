@@ -1,15 +1,10 @@
 import { useForm } from "react-hook-form";
 import { createProject } from "../api/projects";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { projectFormSchema, ProjectFormValues } from "../schemas/projectForm";
 
 type Props = {
   onSuccess: () => Promise<void>;
-};
-
-type FormValues = {
-  title: string;
-  description: string;
-  techStack: string;
-  githubUrl: string;
 };
 
 export default function ProjectForm({ onSuccess }: Props) {
@@ -18,9 +13,10 @@ export default function ProjectForm({ onSuccess }: Props) {
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
     reset,
-  } = useForm<FormValues>({
+  } = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectFormSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -29,7 +25,7 @@ export default function ProjectForm({ onSuccess }: Props) {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: ProjectFormValues) => {
     await createProject({
       title: data.title.trim(),
       description: data.description.trim() || null,
@@ -57,11 +53,16 @@ export default function ProjectForm({ onSuccess }: Props) {
       <label className="flex flex-col gap-1.5 text-sm text-text">
         Title
         <input
-          {...register("title", { required: true })}
+          {...register("title")}
           className="rounded-xl border border-accent/20 bg-background px-3 py-2.5 text-text outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/15"
           placeholder="Portfolio Website"
           disabled={isSubmitting}
         />
+        {errors.title && (
+          <span className="mt-1 text-xs text-red-500">
+            {errors.title.message}
+          </span>
+        )}
       </label>
 
       <label className="flex flex-col gap-1.5 text-sm text-text">
@@ -72,6 +73,11 @@ export default function ProjectForm({ onSuccess }: Props) {
           placeholder="A brief overview of your project"
           disabled={isSubmitting}
         />
+        {errors.description && (
+          <span className="mt-1 text-xs text-red-500">
+            {errors.description.message}
+          </span>
+        )}
       </label>
 
       <label className="flex flex-col gap-1.5 text-sm text-text">
@@ -92,6 +98,11 @@ export default function ProjectForm({ onSuccess }: Props) {
           placeholder="https://github.com/yourname/project"
           disabled={isSubmitting}
         />
+        {errors.githubUrl && (
+          <span className="mt-1 text-xs text-red-500">
+            {errors.githubUrl.message}
+          </span>
+        )}
       </label>
 
       <button

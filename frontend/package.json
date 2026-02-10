@@ -11,12 +11,14 @@
     "gen:api": "openapi-typescript http://localhost:8000/openapi.json -o ./src/api/types.ts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "framer-motion": "^12.34.0",
     "openapi-fetch": "^0.16.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.1",
-    "react-router": "^7.13.0"
+    "react-router": "^7.13.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
