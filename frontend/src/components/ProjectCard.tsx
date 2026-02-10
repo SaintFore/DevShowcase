@@ -1,12 +1,29 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import type { ProjectRead } from "../api/projects";
+import { deleteProject } from "../api/projects";
 
 type Props = {
   project: ProjectRead;
+  onSuccess: () => Promise<void>;
 };
 
-export default function ProjectCard({ project }: Props) {
-  const isDraft = !project.is_published;
+export default function ProjectCard({ project, onSuccess }: Props) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (isDeleting) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteProject(project.id);
+      await Promise.resolve(onSuccess());
+    } catch (error) {
+      alert(error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }
 
   return (
     <motion.article
@@ -16,11 +33,8 @@ export default function ProjectCard({ project }: Props) {
       whileHover={{ y: -6, scale: 1.015 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className="
-        group relative overflow-hidden rounded-2xl
-        border border-accent/30
-        bg-surface
-        p-5
-        transition
+        group relative overflow-hidden rounded-2xl border border-accent/20 bg-surface
+        p-5 shadow-[0_10px_30px_rgba(0,0,0,0.06)] transition
       "
     >
       {/* glow */}
@@ -28,14 +42,14 @@ export default function ProjectCard({ project }: Props) {
         <div className="h-full w-full bg-linear-to-r from-accent/40 to-transparent" />
       </div>
 
-      <header className="relative flex items-start justify-between gap-3">
+      <header className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-semibold text-text">
+          <h3 className="truncate text-lg font-semibold text-text sm:text-xl">
             {project.title}
           </h3>
 
           {project.description ? (
-            <p className="mt-2 line-clamp-2 text-sm leading-6 text-text-muted">
+            <p className="mt-2 line-clamp-3 text-sm leading-6 text-text-muted">
               {project.description}
             </p>
           ) : (
@@ -43,16 +57,14 @@ export default function ProjectCard({ project }: Props) {
           )}
         </div>
 
-        <span
-          className={[
-            "rounded-full px-2.5 py-1 text-xs",
-            isDraft
-              ? "bg-draft text-text-muted"
-              : "bg-published text-background",
-          ].join(" ")}
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="shrink-0 rounded-full border border-accent/30 px-3 py-1 text-xs font-medium text-text transition hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isDraft ? "Draft" : "Published"}
-        </span>
+          {isDeleting ? "..." : "x"}
+        </button>
       </header>
 
       {/* tech stack */}
@@ -62,10 +74,8 @@ export default function ProjectCard({ project }: Props) {
             <li
               key={t}
               className="
-                rounded-full
-                bg-background
-                px-3 py-1
-                text-xs text-text-muted
+                rounded-full border border-secondary/35 bg-background px-3 py-1 text-xs
+                text-text-muted
               "
             >
               {t}
@@ -73,32 +83,6 @@ export default function ProjectCard({ project }: Props) {
           ))}
         </ul>
       )}
-
-      <footer className="relative mt-5 flex items-center justify-between">
-        <span className="text-xs text-text-faint">ID: {project.id}</span>
-
-        {project.github_url ? (
-          <motion.a
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            href={project.github_url}
-            target="_blank"
-            rel="noreferrer"
-            className="
-              inline-flex items-center gap-2
-              rounded-xl
-              bg-accent
-              px-3 py-2
-              text-sm text-background
-              hover:brightness-110
-            "
-          >
-            GitHub ↗
-          </motion.a>
-        ) : (
-          <span className="text-sm text-text-faint">No GitHub</span>
-        )}
-      </footer>
     </motion.article>
   );
 }
