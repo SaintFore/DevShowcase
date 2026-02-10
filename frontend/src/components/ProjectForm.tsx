@@ -1,15 +1,13 @@
 import { useForm } from "react-hook-form";
 import { createProject } from "../api/projects";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { projectFormSchema, ProjectFormValues } from "../schemas/projectForm";
+import { projectFormSchema, ProjectFormValues } from "@/schemas/projectForm";
 
 type Props = {
   onSuccess: () => Promise<void>;
 };
 
 export default function ProjectForm({ onSuccess }: Props) {
-  console.log("Rendering一次");
-
   const {
     register,
     handleSubmit,
