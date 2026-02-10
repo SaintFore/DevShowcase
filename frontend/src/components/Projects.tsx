@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import ProjectCard from "./ProjectCard";
-import type { ProjectRead } from "../api/projects";
+import type { ProjectRead } from "@/api/projects";
 
 type Props = {
   projects: ProjectRead[];

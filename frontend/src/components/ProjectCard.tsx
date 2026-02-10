@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import type { ProjectRead } from "../api/projects";
-import { deleteProject } from "../api/projects";
+import { deleteProject, type ProjectRead } from "@/api/projects";
 
 type Props = {
   project: ProjectRead;

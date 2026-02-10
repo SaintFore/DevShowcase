@@ -5,13 +5,19 @@ export const projectFormSchema = z.object({
     .string()
     .min(1, { message: "标题是必须的" })
     .max(100, { message: "标题太长" }),
-  description: z.string().max(500, { message: "描述太长" }).optional(),
-  techStack: z.string().optional(),
+
+  description: z.string().max(500, { message: "描述太长" }).default(""),
+
+  techStack: z.string().default(""),
+
   githubUrl: z
     .string()
-    .url({ message: "请输入有效的GitHub链接" })
-    .optional()
-    .or(z.literal("")),
+    .trim()
+    .refine((val) => val === "" || /^https?:\/\/.+/.test(val), {
+      message: "请输入有效的 GitHub 链接",
+    })
+    .default(""),
 });
 
-export type ProjectFormValues = z.infer<typeof projectFormSchema>;
+export type ProjectFormInput = z.input<typeof projectFormSchema>;
+export type ProjectFormOutput = z.output<typeof projectFormSchema>;

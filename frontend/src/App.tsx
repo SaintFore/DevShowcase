@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ProjectRead } from "./api/projects";
-import { getProjects } from "./api/projects";
-import Projects from "./components/Projects";
-import ProjectForm from "./components/ProjectForm";
+import type { ProjectRead } from "@/api/projects";
+import { getProjects } from "@/api/projects";
+import Projects from "@/components/Projects";
+import ProjectForm from "@/components/ProjectForm";
 import { motion } from "framer-motion";
 
 export default function App() {

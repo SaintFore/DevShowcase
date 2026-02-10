@@ -1,7 +1,11 @@
-import { useForm } from "react-hook-form";
-import { createProject } from "../api/projects";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { createProject } from "@/api/projects";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { projectFormSchema, ProjectFormValues } from "@/schemas/projectForm";
+import {
+  projectFormSchema,
+  type ProjectFormInput,
+  type ProjectFormOutput,
+} from "@/schemas/projectForm";
 
 type Props = {
   onSuccess: () => Promise<void>;
@@ -13,7 +17,7 @@ export default function ProjectForm({ onSuccess }: Props) {
     handleSubmit,
     formState: { isSubmitting, errors },
     reset,
-  } = useForm<ProjectFormValues>({
+  } = useForm<ProjectFormInput>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
       title: "",
@@ -23,21 +27,22 @@ export default function ProjectForm({ onSuccess }: Props) {
     },
   });
 
-  const onSubmit = async (data: ProjectFormValues) => {
+  const onSubmit: SubmitHandler<ProjectFormInput> = async (data) => {
+    const parsed = data as ProjectFormOutput;
+
     await createProject({
-      title: data.title.trim(),
-      description: data.description.trim() || null,
-      tech_stack: data.techStack
+      title: parsed.title.trim(),
+      description: parsed.description.trim() || null,
+      tech_stack: parsed.techStack
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      github_url: data.githubUrl.trim() || null,
+      github_url: parsed.githubUrl.trim() || null,
     });
 
     await onSuccess();
     reset();
   };
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
