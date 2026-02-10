@@ -6,6 +6,7 @@ type Props = {
 };
 
 export default function ProjectForm({ onSuccess }: Props) {
+  console.log("Rendering一次");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [techStack, setTechStack] = useState("");
