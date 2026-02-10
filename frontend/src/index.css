@@ -1,10 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  /* Base surfaces */
+  --color-background: #fff4ea; /* 页面背景 */
+  --color-surface: #eddcc6; /* 卡片 / 表单 */
+  --color-accent: #bf4646; /* 主要强调 / CTA */
+
+  /* Text */
+  --color-text: #3a2f2f; /* 深暖灰，避免纯黑 */
+  --color-text-muted: rgba(58, 47, 47, 0.7);
+  --color-text-faint: rgba(58, 47, 47, 0.45);
+
+  /* Secondary accent */
+  --color-secondary: #7eacb5;
+}
+
 @layer base {
   html,
   body,
   #root {
     height: 100%;
     margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-text);
   }
 }
