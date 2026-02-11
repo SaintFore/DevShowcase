@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import ProjectCard from "./ProjectCard";
 import type { ProjectRead } from "@/api/projects";
 
+import { Badge } from "@/components/ui/badge";
+
 type Props = {
   projects: ProjectRead[];
   onRefresh: () => Promise<void>;
@@ -10,7 +12,7 @@ type Props = {
 export default function Projects({ projects, onRefresh }: Props) {
   if (projects.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-accent/30 py-16 text-center text-text-muted">
+      <div className="rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
         No projects yet. Add your first one on the right.
       </div>
     );
@@ -19,12 +21,9 @@ export default function Projects({ projects, onRefresh }: Props) {
   return (
     <>
       <div className="mb-5 flex items-end justify-between gap-4">
-        <h2 className="text-xl font-semibold text-text sm:text-2xl">
-          Project Gallery
-        </h2>
-        <span className="rounded-full bg-secondary/20 px-3 py-1 text-xs text-text-muted">
-          {projects.length} items
-        </span>
+        <h2 className="text-xl font-semibold sm:text-2xl">Project Gallery</h2>
+
+        <Badge variant="secondary">{projects.length} items</Badge>
       </div>
 
       <motion.section

@@ -1,11 +1,21 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { createProject } from "@/api/projects";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createProject } from "@/api/projects";
 import {
   projectFormSchema,
   type ProjectFormInput,
   type ProjectFormOutput,
 } from "@/schemas/projectForm";
+
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldLabel,
+  FieldContent,
+  FieldError,
+} from "@/components/ui/field";
 
 type Props = {
   onSuccess: () => Promise<void>;
@@ -43,78 +53,73 @@ export default function ProjectForm({ onSuccess }: Props) {
     await onSuccess();
     reset();
   };
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="rounded-2xl bg-surface p-5 flex flex-col gap-4"
+      className="rounded-2xl bg-card p-6 space-y-6"
     >
-      <h2 className="text-2xl font-bold text-text">Create New Project</h2>
-      <p className="-mt-1 text-sm text-text-muted">
-        Fill in the details and publish to your showcase.
-      </p>
+      <div>
+        <h2 className="text-2xl font-bold">Create New Project</h2>
+        <p className="text-sm text-muted-foreground">
+          Fill in the details and publish to your showcase.
+        </p>
+      </div>
 
-      <label className="flex flex-col gap-1.5 text-sm text-text">
-        Title
-        <input
-          {...register("title")}
-          className="rounded-xl border border-accent/20 bg-background px-3 py-2.5 text-text outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/15"
-          placeholder="Portfolio Website"
-          disabled={isSubmitting}
-        />
-        {errors.title && (
-          <span className="mt-1 text-xs text-red-500">
-            {errors.title.message}
-          </span>
-        )}
-      </label>
+      {/* Title */}
+      <Field>
+        <FieldLabel>Title</FieldLabel>
+        <FieldContent>
+          <Input
+            placeholder="Portfolio Website"
+            disabled={isSubmitting}
+            {...register("title")}
+          />
+        </FieldContent>
+        <FieldError errors={[errors.title]} />
+      </Field>
 
-      <label className="flex flex-col gap-1.5 text-sm text-text">
-        Description
-        <textarea
-          {...register("description")}
-          className="min-h-24 rounded-xl border border-accent/20 bg-background px-3 py-2.5 text-text outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/15"
-          placeholder="A brief overview of your project"
-          disabled={isSubmitting}
-        />
-        {errors.description && (
-          <span className="mt-1 text-xs text-red-500">
-            {errors.description.message}
-          </span>
-        )}
-      </label>
+      {/* Description */}
+      <Field>
+        <FieldLabel>Description</FieldLabel>
+        <FieldContent>
+          <Textarea
+            placeholder="A brief overview of your project"
+            disabled={isSubmitting}
+            {...register("description")}
+          />
+        </FieldContent>
+        <FieldError errors={[errors.description]} />
+      </Field>
 
-      <label className="flex flex-col gap-1.5 text-sm text-text">
-        Tech Stack
-        <input
-          {...register("techStack")}
-          className="rounded-xl border border-accent/20 bg-background px-3 py-2.5 text-text outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/15"
-          placeholder="React, TypeScript, FastAPI"
-          disabled={isSubmitting}
-        />
-      </label>
+      {/* Tech Stack */}
+      <Field>
+        <FieldLabel>Tech Stack</FieldLabel>
+        <FieldContent>
+          <Input
+            placeholder="React, TypeScript, FastAPI"
+            disabled={isSubmitting}
+            {...register("techStack")}
+          />
+        </FieldContent>
+      </Field>
 
-      <label className="flex flex-col gap-1.5 text-sm text-text">
-        GitHub URL
-        <input
-          {...register("githubUrl")}
-          className="rounded-xl border border-accent/20 bg-background px-3 py-2.5 text-text outline-none transition focus:border-accent/50 focus:ring-2 focus:ring-accent/15"
-          placeholder="https://github.com/yourname/project"
-          disabled={isSubmitting}
-        />
-        {errors.githubUrl && (
-          <span className="mt-1 text-xs text-red-500">
-            {errors.githubUrl.message}
-          </span>
-        )}
-      </label>
+      {/* GitHub URL */}
+      <Field>
+        <FieldLabel>GitHub URL</FieldLabel>
+        <FieldContent>
+          <Input
+            placeholder="https://github.com/yourname/project"
+            disabled={isSubmitting}
+            {...register("githubUrl")}
+          />
+        </FieldContent>
+        <FieldError errors={[errors.githubUrl]} />
+      </Field>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="mt-2 rounded-xl bg-accent px-4 py-2.5 font-semibold text-background transition disabled:cursor-not-allowed disabled:opacity-70"
-      >
+      <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? "Creating..." : "Create Project"}
-      </button>
+      </Button>
     </form>
   );
 }

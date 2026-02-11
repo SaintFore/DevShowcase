@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { deleteProject, type ProjectRead } from "@/api/projects";
 
+import { Button } from "@/components/ui/button";
+
 type Props = {
   project: ProjectRead;
   onSuccess: () => Promise<void>;
@@ -16,7 +18,7 @@ export default function ProjectCard({ project, onSuccess }: Props) {
     try {
       setIsDeleting(true);
       await deleteProject(project.id);
-      await Promise.resolve(onSuccess());
+      await onSuccess();
     } catch (error) {
       alert(error);
     } finally {
@@ -32,49 +34,52 @@ export default function ProjectCard({ project, onSuccess }: Props) {
       whileHover={{ y: -6, scale: 1.015 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className="
-        group relative overflow-hidden rounded-2xl border border-accent/20 bg-surface
-        p-5 shadow-[0_10px_30px_rgba(0,0,0,0.06)] transition
+        group relative overflow-hidden rounded-2xl border bg-card
+        p-5 shadow-sm transition
       "
     >
       {/* glow */}
       <div className="pointer-events-none absolute -inset-24 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100">
-        <div className="h-full w-full bg-linear-to-r from-accent/40 to-transparent" />
+        <div className="h-full w-full bg-gradient-to-r from-primary/30 to-transparent" />
       </div>
 
       <header className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-semibold text-text sm:text-xl">
+          <h3 className="truncate text-lg font-semibold sm:text-xl">
             {project.title}
           </h3>
 
           {project.description ? (
-            <p className="mt-2 line-clamp-3 text-sm leading-6 text-text-muted">
+            <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
               {project.description}
             </p>
           ) : (
-            <p className="mt-2 text-sm text-text-faint">No description.</p>
+            <p className="mt-2 text-sm text-muted-foreground/70">
+              No description.
+            </p>
           )}
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleDelete}
           disabled={isDeleting}
-          className="shrink-0 rounded-full border border-accent/30 px-3 py-1 text-xs font-medium text-text transition hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-60"
+          className="shrink-0"
         >
-          {isDeleting ? "..." : "x"}
-        </button>
+          {isDeleting ? "..." : "Delete"}
+        </Button>
       </header>
 
-      {/* tech stack */}
       {!!project.tech_stack?.length && (
         <ul className="relative mt-4 flex flex-wrap gap-2">
           {project.tech_stack.slice(0, 8).map((t) => (
             <li
               key={t}
               className="
-                rounded-full border border-secondary/35 bg-background px-3 py-1 text-xs
-                text-text-muted
+                rounded-full border bg-muted px-3 py-1 text-xs
+                text-muted-foreground
               "
             >
               {t}
