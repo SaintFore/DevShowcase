@@ -50,7 +50,7 @@ export default function App() {
             backdrop-blur-sm sm:p-8
           "
         >
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-secondary">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
             Dev Showcase
           </p>
           <h1 className="mt-2 text-3xl font-bold leading-tight text-text sm:text-5xl">
