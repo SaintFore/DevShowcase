@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from contextlib import asynccontextmanager
-from .models.project import Project, ProjectCreate, ProjectRead, ProjectUpdate
+from app.models.project import Project, ProjectCreate, ProjectRead, ProjectUpdate
 from .database import get_session, create_db_and_tables
 
 
