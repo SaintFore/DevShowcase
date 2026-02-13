@@ -1,5 +1,8 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, TYPE_CHECKING
+from sqlmodel import SQLModel, Field, Relationship
+
+if TYPE_CHECKING:
+    from app.models.project import Project
 
 
 class UserBase(SQLModel):
@@ -26,3 +29,5 @@ class User(UserBase, table=True):
     username: str = Field(unique=True, index=True)
     email: str = Field(unique=True, index=True)
     password: str
+
+    projects: list["Project"] = Relationship(back_populates="owner")

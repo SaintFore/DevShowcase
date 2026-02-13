@@ -1,6 +1,9 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, TYPE_CHECKING
+from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, JSON
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class ProjectBase(SQLModel):
@@ -33,3 +36,6 @@ class Project(ProjectBase, table=True):
     tech_stack: list[str] = Field(
         default_factory=list, sa_column=Column(JSON, nullable=False)
     )
+
+    owner_id: Optional[int] = Field(foreign_key="user.id")
+    owner: Optional["User"] = Relationship(back_populates="projects")
