@@ -1,13 +1,14 @@
 from sqlmodel import SQLModel, create_engine, Session
-from pathlib import Path
+from app.core.config import settings
 
-sqlite_file_name = "database.db"
-
-BASE_DIR = Path(__file__).resolve().parent
-
-sqlite_url = f"sqlite:///{BASE_DIR / sqlite_file_name}"
-
-engine = create_engine(sqlite_url, connect_args={"check_same_thread": False})
+engine = create_engine(
+    settings.database_url,
+    connect_args=(
+        {"check_same_thread": False}
+        if settings.database_url.startswith("sqlite")
+        else {}
+    ),
+)
 
 
 def create_db_and_tables():
