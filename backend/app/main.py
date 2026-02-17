@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from contextlib import asynccontextmanager
 from app.models.project import Project, ProjectCreate, ProjectRead, ProjectUpdate
+from app.models.user import UserCreate, UserRead, User
+from app.core.security import hash_password
 from .database import get_session, create_db_and_tables
 
 
@@ -43,7 +45,7 @@ def get_projects(session: Session = Depends(get_session)):
 
 @app.post("/api/projects", response_model=ProjectRead)
 def create_project(project: ProjectCreate, session: Session = Depends(get_session)):
-    db_project = Project.model_validate(project)
+    db_project = Project(**project.model_dump(), owner_id=1)
     session.add(db_project)
     session.commit()
     session.refresh(db_project)
@@ -72,4 +74,40 @@ def delete_project(project_id: int, session: Session = Depends(get_session)):
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
     session.delete(db_project)
+    session.commit()
+
+
+@app.get("/api/users", response_model=list[UserRead])
+def get_users(session: Session = Depends(get_session)):
+    statement = select(User)
+    users = session.exec(statement).all()
+    return users
+
+
+@app.get("/api/users/{user_id}", response_model=UserRead)
+def get_user(user_id: int, session: Session = Depends(get_session)):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@app.post("/api/users", response_model=UserRead)
+def create_user(user: UserCreate, session: Session = Depends(get_session)):
+    hashed_password = hash_password(user.password)
+    db_user = User(
+        username=user.username, email=user.email, hashed_password=hashed_password
+    )
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
+
+
+@app.delete("/api/users/{user_id}", status_code=204)
+def delete_user(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.get(User, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    session.delete(db_user)
     session.commit()

@@ -28,6 +28,6 @@ class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(unique=True, index=True)
     email: str = Field(unique=True, index=True)
-    password: str
+    hashed_password: str
 
     projects: list["Project"] = Relationship(back_populates="owner")
