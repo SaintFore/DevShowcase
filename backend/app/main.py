@@ -4,8 +4,11 @@ from sqlmodel import Session, select
 from contextlib import asynccontextmanager
 from app.models.project import Project, ProjectCreate, ProjectRead, ProjectUpdate
 from app.models.user import UserCreate, UserRead, User
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password, create_access_token
 from .database import get_session, create_db_and_tables
+from sqlalchemy.exc import IntegrityError
+
+from fastapi.security import OAuth2PasswordRequestForm
 
 
 @asynccontextmanager
@@ -98,9 +101,12 @@ def create_user(user: UserCreate, session: Session = Depends(get_session)):
     db_user = User(
         username=user.username, email=user.email, hashed_password=hashed_password
     )
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+    try:
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
     return db_user
 
 
@@ -111,3 +117,33 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="User not found")
     session.delete(db_user)
     session.commit()
+
+
+@app.post("/api/auth/signup", response_model=UserRead)
+def signup(user: UserCreate, session: Session = Depends(get_session)):
+    hashed_password = hash_password(user.password)
+    db_user = User(
+        username=user.username, email=user.email, hashed_password=hashed_password
+    )
+    try:
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+    except IntegrityError:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
+    return db_user
+
+
+@app.post("/api/auth/signin")
+def signin(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    user = session.exec(select(User).where(User.username == form_data.username)).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+    access_token = create_access_token(data={"sub": user.id})
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
