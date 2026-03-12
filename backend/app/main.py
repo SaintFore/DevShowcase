@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from contextlib import asynccontextmanager
 from app.models.project import Project, ProjectCreate, ProjectRead, ProjectUpdate
-from app.models.user import UserCreate, UserRead, User
+from app.models.user import UserCreate, UserRead, User, UserUpdate
 from app.core.security import hash_password, verify_password, create_access_token
 from .database import get_session, create_db_and_tables
 from sqlalchemy.exc import IntegrityError
@@ -117,6 +117,26 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="User not found")
     session.delete(db_user)
     session.commit()
+
+
+@app.patch("/api/users/{user_id}", response_model=UserRead)
+def update_user(
+    user: UserUpdate, user_id: int, session: Session = Depends(get_session)
+):
+    db_user = session.get(User, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="未找到用户")
+    user_data = user.model_dump(exclude_unset=True)
+
+    if "password" in user_data:
+        db_user.hashed_password = hash_password(user_data.pop("password"))
+
+    for key, value in user_data.items():
+        setattr(db_user, key, value)
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
 
 
 @app.post("/api/auth/signup", response_model=UserRead)
