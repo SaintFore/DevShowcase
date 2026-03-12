@@ -38,15 +38,18 @@ export default function HomePage() {
         >
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,theme(colors.secondary/25),transparent_45%),radial-gradient(circle_at_bottom_right,theme(colors.accent/15),transparent_40%)]" />
           <div className="relative">
-            <Badge variant="secondary" className="text-xs uppercase tracking-[0.18em]">
+            <Badge
+              variant="secondary"
+              className="text-xs uppercase tracking-[0.18em]"
+            >
               Dev Showcase Workspace
             </Badge>
             <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-6xl">
               Build loud, present clearly, iterate without friction.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-              A focused home for your projects and contributors. Keep everything visible,
-              structured, and ready for the next release.
+              A focused home for your projects and contributors. Keep everything
+              visible, structured, and ready for the next release.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">
@@ -81,12 +84,16 @@ export default function HomePage() {
               transition={{ duration: 0.35, ease: "easeOut" }}
               className="rounded-3xl border border-primary/20 bg-card p-5 shadow-lg"
             >
-              <p className="text-xs uppercase tracking-[0.16em] text-primary">{card.value}</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-primary">
+                {card.value}
+              </p>
               <h2 className="mt-3 text-2xl font-semibold leading-snug text-card-foreground">
                 {card.title}
               </h2>
               <Separator className="my-4" />
-              <p className="text-sm leading-7 text-muted-foreground">{card.description}</p>
+              <p className="text-sm leading-7 text-muted-foreground">
+                {card.description}
+              </p>
             </motion.article>
           ))}
         </motion.section>
