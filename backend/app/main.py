@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from contextlib import asynccontextmanager
@@ -7,6 +7,7 @@ from app.models.user import UserCreate, UserRead, User, UserUpdate
 from app.core.security import hash_password, verify_password, create_access_token
 from .database import get_session, create_db_and_tables
 from sqlalchemy.exc import IntegrityError
+from app.core.deps import get_current_user
 
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -32,23 +33,36 @@ app.add_middleware(
 
 
 @app.get("/api/projects/{project_id}", response_model=ProjectRead)
-def get_project(project_id: int, session: Session = Depends(get_session)):
-    project = session.get(Project, project_id)
+def get_project(
+    project_id: int,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    statement = select(Project).where(
+        Project.owner_id == user.id, Project.id == project_id
+    )
+    project = session.exec(statement).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
 
 @app.get("/api/projects", response_model=list[ProjectRead])
-def get_projects(session: Session = Depends(get_session)):
-    statement = select(Project)
+def get_projects(
+    session: Session = Depends(get_session), user: User = Depends(get_current_user)
+):
+    statement = select(Project).where(Project.owner_id == user.id)
     projects = session.exec(statement).all()
     return projects
 
 
 @app.post("/api/projects", response_model=ProjectRead)
-def create_project(project: ProjectCreate, session: Session = Depends(get_session)):
-    db_project = Project(**project.model_dump(), owner_id=1)
+def create_project(
+    project: ProjectCreate,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_project = Project(**project.model_dump(), owner_id=user.id)
     session.add(db_project)
     session.commit()
     session.refresh(db_project)
@@ -57,9 +71,15 @@ def create_project(project: ProjectCreate, session: Session = Depends(get_sessio
 
 @app.patch("/api/projects/{project_id}", response_model=ProjectRead)
 def update_project(
-    project: ProjectUpdate, project_id: int, session: Session = Depends(get_session)
+    project: ProjectUpdate,
+    project_id: int,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
 ):
-    db_project = session.get(Project, project_id)
+    statement = select(Project).where(
+        Project.owner_id == user.id, Project.id == project_id
+    )
+    db_project = session.exec(statement).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
     project_data = project.model_dump(exclude_unset=True)
@@ -72,12 +92,21 @@ def update_project(
 
 
 @app.delete("/api/projects/{project_id}", status_code=204)
-def delete_project(project_id: int, session: Session = Depends(get_session)):
-    db_project = session.get(Project, project_id)
+def delete_project(
+    project_id: int,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    statement = select(Project).where(
+        Project.owner_id == user.id, Project.id == project_id
+    )
+    db_project = session.exec(statement).first()
     if not db_project:
         raise HTTPException(status_code=404, detail="Project not found")
     session.delete(db_project)
     session.commit()
+
+    return Response(status_code=204)
 
 
 @app.get("/api/users", response_model=list[UserRead])
@@ -162,7 +191,7 @@ def signin(
     user = session.exec(select(User).where(User.username == form_data.username)).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid username or password")
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
     return {
         "access_token": access_token,
         "token_type": "bearer",
