@@ -53,11 +53,17 @@ export default function HomePage() {
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild size="lg">
+              <Button asChild variant="outline" size="lg">
                 <Link to="/projects">Explore Projects</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/users">Open User Directory</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/login">Sign in</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/register">Create account</Link>
               </Button>
             </div>
           </div>
