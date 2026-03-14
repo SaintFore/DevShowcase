@@ -32,6 +32,16 @@ export default function LoginPage() {
   const location = useLocation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const locationState =
+    typeof location.state === "object" && location.state !== null
+      ? (location.state as { from?: string; registered?: boolean })
+      : null;
+
+  const redirectTo =
+    typeof locationState?.from === "string" && locationState.from.startsWith("/")
+      ? locationState.from
+      : "/projects";
+
   const {
     register,
     handleSubmit,
@@ -55,16 +65,13 @@ export default function LoginPage() {
 
       setAuthToken(result.access_token);
       setErrorMessage(null);
-      await navigate("/projects");
+      await navigate(redirectTo, { replace: true });
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
     }
   };
 
-  const hasRegisterSuccess =
-    typeof location.state === "object" &&
-    location.state !== null &&
-    "registered" in location.state;
+  const hasRegisterSuccess = locationState?.registered === true;
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-8">
