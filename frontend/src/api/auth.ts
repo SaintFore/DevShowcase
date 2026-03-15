@@ -12,6 +12,8 @@ export type SigninResponse = {
   token_type: string;
 };
 
+export type MeResponse = components["schemas"]["UserRead"];
+
 export async function signup(payload: SignupPayload) {
   const { data, error } = await api.POST("/api/auth/signup", {
     body: payload,
@@ -57,4 +59,18 @@ export async function signin(payload: SigninPayload): Promise<SigninResponse> {
         ? tokenData.token_type
         : "bearer",
   };
+}
+
+export async function getMe(): Promise<MeResponse> {
+  const { data, error } = await api.GET("/api/auth/me");
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error("Invalid /api/auth/me response.");
+  }
+
+  return data;
 }

@@ -34,7 +34,11 @@ export default function LoginPage() {
 
   const locationState =
     typeof location.state === "object" && location.state !== null
-      ? (location.state as { from?: string; registered?: boolean })
+      ? (location.state as {
+          from?: string;
+          registered?: boolean;
+          expired?: boolean;
+        })
       : null;
 
   const redirectTo =
@@ -72,6 +76,7 @@ export default function LoginPage() {
   };
 
   const hasRegisterSuccess = locationState?.registered === true;
+  const hasSessionExpired = locationState?.expired === true;
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-8">
@@ -111,6 +116,12 @@ export default function LoginPage() {
           {hasRegisterSuccess ? (
             <p className="mb-4 rounded-xl border border-secondary bg-secondary/35 px-3 py-2 text-sm">
               注册成功，请登录。
+            </p>
+          ) : null}
+
+          {hasSessionExpired ? (
+            <p className="mb-4 rounded-xl border border-accent bg-accent/15 px-3 py-2 text-sm text-foreground">
+              登录状态已失效，请重新登录。
             </p>
           ) : null}
 

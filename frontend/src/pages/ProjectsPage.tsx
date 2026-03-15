@@ -1,11 +1,33 @@
 import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import type { ProjectRead } from "@/api/projects";
 import { getProjects } from "@/api/projects";
 import Projects from "@/components/Projects";
 import ProjectForm from "@/components/ProjectForm";
 import { motion } from "framer-motion";
+import { clearAuthToken } from "@/lib/auth";
+
+function isUnauthorizedError(error: unknown) {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  const status = (error as { status?: unknown }).status;
+  if (status === 401) {
+    return true;
+  }
+
+  const detail = (error as { detail?: unknown }).detail;
+  if (typeof detail === "string") {
+    return detail.toLowerCase().includes("could not validate credentials");
+  }
+
+  return false;
+}
 
 export default function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [projects, setProjects] = useState<ProjectRead[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -14,29 +36,53 @@ export default function App() {
       const data = await getProjects();
       setProjects(data);
       setErrorMessage(null);
-    } catch {
+    } catch (error) {
+      if (isUnauthorizedError(error)) {
+        clearAuthToken();
+        await navigate("/login", {
+          replace: true,
+          state: { from: location.pathname, expired: true },
+        });
+        return;
+      }
+
       setErrorMessage("Failed to load projects.");
     }
-  }, []);
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     let cancelled = false;
 
     getProjects()
       .then((data) => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
+
         setProjects(data);
         setErrorMessage(null);
       })
-      .catch(() => {
-        if (cancelled) return;
+      .catch(async (error) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (isUnauthorizedError(error)) {
+          clearAuthToken();
+          await navigate("/login", {
+            replace: true,
+            state: { from: location.pathname, expired: true },
+          });
+          return;
+        }
+
         setErrorMessage("Failed to load projects.");
       });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [location.pathname, navigate]);
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 sm:px-8">
