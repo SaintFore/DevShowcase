@@ -23,7 +23,7 @@ def get_project(
     return project
 
 
-@router.get("/", response_model=list[ProjectRead])
+@router.get("", response_model=list[ProjectRead])
 def get_projects(
     session: Session = Depends(get_session), user: User = Depends(get_current_user)
 ):
@@ -32,7 +32,7 @@ def get_projects(
     return projects
 
 
-@router.post("/", response_model=ProjectRead)
+@router.post("", response_model=ProjectRead)
 def create_project(
     project: ProjectCreate,
     session: Session = Depends(get_session),
